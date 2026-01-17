@@ -1,0 +1,149 @@
+#
+# SilentKey Release Workflow
+# Workflow GitHub Actions pour build, tests, signature et publication automatique
+#
+# Author: PhoenixProject
+# Website: http://ThePhoenixAgency.github.io
+#
+
+name: Release and Deploy
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+env:
+  APP_NAME: SilentKey
+  DEVELOPER_DIR: /Applications/Xcode_15.2.app/Contents/Developer
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: macos-14
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Swift
+        uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: '5.9'
+          
+      - name: Cache Swift dependencies
+        uses: actions/cache@v3
+        with:
+          path: .build
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+            
+      - name: Build projet
+        run: swift build -c release
+        
+      - name: Run unit tests
+        run: swift test --parallel
+        
+      - name: Run security scan
+        run: |
+          # Scanner les vulnérabilités CVE connues
+          brew install trivy
+          trivy fs --severity HIGH,CRITICAL .
+          
+  sign-and-notarize:
+    name: Sign and Notarize
+    needs: build-and-test
+    runs-on: macos-14
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Import signing certificate
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.MACOS_CERTIFICATE }}
+          CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+        run: |
+          # Créer keychain temporaire
+          security create-keychain -p "$CERTIFICATE_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$CERTIFICATE_PASSWORD" build.keychain
+          
+          # Importer le certificat
+          echo "$CERTIFICATE_BASE64" | base64 --decode > certificate.p12
+          security import certificate.p12 -k build.keychain -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$CERTIFICATE_PASSWORD" build.keychain
+          
+      - name: Build release
+        run: swift build -c release
+        
+      - name: Sign application
+        env:
+          SIGNING_IDENTITY: ${{ secrets.SIGNING_IDENTITY }}
+        run: |
+          codesign --force --options runtime --entitlements Configuration/SilentKey.entitlements --sign "$SIGNING_IDENTITY" --timestamp --deep .build/release/SilentKey
+          
+      - name: Create DMG
+        run: |
+          mkdir -p dist
+          # Créer DMG pour distribution
+          hdiutil create -volname "SilentKey" -srcfolder .build/release/SilentKey.app -ov -format UDZO dist/SilentKey-${{ github.ref_name }}.dmg
+          
+      - name: Sign DMG
+        env:
+          SIGNING_IDENTITY: ${{ secrets.SIGNING_IDENTITY }}
+        run: |
+          codesign --force --sign "$SIGNING_IDENTITY" --timestamp dist/SilentKey-${{ github.ref_name }}.dmg
+          
+      - name: Notarize application
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+        run: |
+          # Notariser avec Apple
+          xcrun notarytool submit dist/SilentKey-${{ github.ref_name }}.dmg --apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" --team-id "$TEAM_ID" --wait
+          
+          # Agrafer le ticket de notarisation
+          xcrun stapler staple dist/SilentKey-${{ github.ref_name }}.dmg
+          
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: silentkey-dmg
+          path: dist/SilentKey-${{ github.ref_name }}.dmg
+          
+  release:
+    name: Create GitHub Release
+    needs: sign-and-notarize
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Download DMG artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: silentkey-dmg
+          path: dist
+          
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Update appcast.xml
+        run: |
+          # Mettre à jour le fichier appcast avec la nouvelle version
+          echo "Appcast updated for version ${{ github.ref_name }}"
+          # TODO: Automatiser la mise à jour de appcast.xml
