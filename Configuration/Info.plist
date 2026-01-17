@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+    SilentKey Info.plist
+    Métadonnées et configuration de l'application macOS
+    
+    Author: PhoenixProject
+    Website: http://ThePhoenixAgency.github.io
+-->
+<plist version="1.0">
+<dict>
+    <!-- Identification de l'application -->
+    <key>CFBundleExecutable</key>
+    <string>SilentKey</string>
+    
+    <key>CFBundleIdentifier</key>
+    <string>com.phoenixproject.silentkey</string>
+    
+    <key>CFBundleName</key>
+    <string>SilentKey</string>
+    
+    <key>CFBundleDisplayName</key>
+    <string>SilentKey</string>
+    
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    
+    <!-- Versioning sémantique -->
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    
+    <!-- Informations sur le développeur -->
+    <key>NSHumanReadableCopyright</key>
+    <string>© 2025 PhoenixProject. All rights reserved.</string>
+    
+    <!-- Configuration minimum -->
+    <key>LSMinimumSystemVersion</key>
+    <string>13.0</string>
+    
+    <!-- Support des architectures -->
+    <key>LSArchitecturePriority</key>
+    <array>
+        <string>arm64</string>
+        <string>x86_64</string>
+    </array>
+    
+    <!-- Catégorie de l'app -->
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.developer-tools</string>
+    
+    <!-- Interface utilisateur -->
+    <key>LSUIElement</key>
+    <false/>
+    
+    <key>NSSupportsAutomaticTermination</key>
+    <true/>
+    
+    <key>NSSupportsSuddenTermination</key>
+    <false/>
+    
+    <!-- High Resolution capable -->
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    
+    <key>NSPrincipalClass</key>
+    <string>NSApplication</string>
+    
+    <!-- Privacy - Description des permissions -->
+    <key>NSAppleEventsUsageDescription</key>
+    <string>SilentKey requires permission to send Apple Events for inter-app communication.</string>
+    
+    <!-- Messages de confidentialité bilingues -->
+    <key>NSPrivacyAccessedAPITypes</key>
+    <array>
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <string>C617.1</string>
+            </array>
+        </dict>
+    </array>
+    
+    <!-- URL Schemes pour deep linking -->
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>com.phoenixproject.silentkey</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>silentkey</string>
+            </array>
+        </dict>
+    </array>
+    
+    <!-- Types de documents supportés -->
+    <key>CFBundleDocumentTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeName</key>
+            <string>SilentKey Vault</string>
+            <key>CFBundleTypeExtensions</key>
+            <array>
+                <string>silentkey</string>
+            </array>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>LSHandlerRank</key>
+            <string>Owner</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>com.phoenixproject.silentkey.vault</string>
+            </array>
+        </dict>
+    </array>
+    
+    <!-- Exported UTI -->
+    <key>UTExportedTypeDeclarations</key>
+    <array>
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>com.phoenixproject.silentkey.vault</string>
+            <key>UTTypeDescription</key>
+            <string>SilentKey Encrypted Vault</string>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.data</string>
+            </array>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>silentkey</string>
+                </array>
+            </dict>
+        </dict>
+    </array>
+    
+    <!-- App Transport Security -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <false/>
+        <key>NSExceptionDomains</key>
+        <dict>
+            <key>github.com</key>
+            <dict>
+                <key>NSIncludesSubdomains</key>
+                <true/>
+                <key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
+                <false/>
+                <key>NSTemporaryExceptionMinimumTLSVersion</key>
+                <string>TLSv1.3</string>
+            </dict>
+        </dict>
+    </dict>
+    
+    <!-- Application permet le redimensionnement -->
+    <key>NSMainStoryboardFile</key>
+    <string>Main</string>
+    
+    <!-- Support de Sparkle pour les mises à jour -->
+    <key>SUFeedURL</key>
+    <string>https://ethanthephoenix38.github.io/SilentKey/appcast.xml</string>
+    
+    <key>SUEnableAutomaticChecks</key>
+    <true/>
+    
+    <key>SUScheduledCheckInterval</key>
+    <integer>86400</integer>
+    
+    <key>SUAllowsAutomaticUpdates</key>
+    <true/>
+    
+</dict>
+</plist>
