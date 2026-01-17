@@ -27,14 +27,14 @@ public final class AppLogger {
     
     // MARK: - Niveaux de log
     public enum LogLevel: String {
-        case debug = "🔍 DEBUG"
-        case info = "ℹ️ INFO"
-        case warning = "⚠️ WARNING"
-        case error = "❌ ERROR"
-        case critical = "🔥 CRITICAL"
-        case security = "🔒 SECURITY"
-        case performance = "⚡️ PERFORMANCE"
-        case userAction = "👤 USER"
+        case debug = [DEBUG]DEBUG"
+        case info = [INFO]INFO"
+        case warning = [WARNING]WARNING"
+        case error = [ERROR]ERROR"
+        case critical = [CRITICAL]CRITICAL"
+        case security = [SECURITY]SECURITY"
+        case performance = [PERF]PERFORMANCE"
+        case userAction = [USER]USER"
     }
     
     // MARK: - Catégories
@@ -244,18 +244,18 @@ public final class AppLogger {
     
     private func formatReportForGitHub(_ report: DiagnosticReport, includeFullLogs: Bool) -> String {
         var body = """
-        ## 🔍 Rapport de Diagnostic Automatique
+        ##Rapport de Diagnostic Automatique
         
         **Version:** \(report.appVersion) (\(report.buildNumber))
         **Date:** \(report.timestamp)
         
-        ### 💻 Informations Système
+        ### nformations Système
         - **OS:** \(report.systemInfo.osVersion)
         - **Modèle:** \(report.systemInfo.deviceModel)
         - **Mémoire:** \(ByteCountFormatter.string(fromByteCount: Int64(report.systemInfo.availableMemory), countStyle: .memory))
         - **Locale:** \(report.systemInfo.locale)
         
-        ### 📊 Métriques Application
+        ### étriques Application
         - **Nombre de lancements:** \(report.metrics.launchCount)
         - **Crashs enregistrés:** \(report.metrics.crashCount)
         
