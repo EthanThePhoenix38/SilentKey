@@ -46,6 +46,7 @@ public final class AppLogger {
         case purchase = "Purchase"
         case authentication = "Authentication"
         case system = "System"
+                case security = "Security"
     }
     
     // MARK: - Initialisation
