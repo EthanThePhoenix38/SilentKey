@@ -127,20 +127,20 @@ jobs:
         PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
         KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
         
-        # Importer certificat depuis secrets
+        # Import certificate from secrets
         echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
         echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
         
-        # Créer keychain temporaire
+        # Import certiCreate temporary keychainficate from secrets
         security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
         security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
         security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
         
-        # Importer certificat dans keychain
+        # Import certiImport certificate to keychainCreate temporary keychainficate from secrets
         security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
         security list-keychain -d user -s $KEYCHAIN_PATH
         
-        # Installer provisioning profile
+        # Import certiInstall provisioning profileImport certificate to keychainCreate temporary keychainficate from secrets
         mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
         cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
         
@@ -241,7 +241,7 @@ jobs:
       env:
         APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
       run: |
-        # Soumettre automatiquement pour revue App Store
+        # Import certiAutomatically submit for App Store reviewInstall provisioning profileImport certificate to keychainCreate temporary keychainficate from secrets pour revue App Store
         echo "Application soumise pour revue App Store"
         
     - name: Clean up
