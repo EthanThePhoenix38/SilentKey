@@ -42,7 +42,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
             
-      - name: Build projet
+      - name: Build project
         run: swift build -c release
         
       - name: Run unit tests
