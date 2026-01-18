@@ -196,6 +196,29 @@
         <div class="container">
             <h1>SilentKey</h1>
             <p class="tagline" data-en="Secure Secrets Management for Developers" data-fr="Gestion Sécurisée des Secrets pour Développeurs"></p>
+            
+            <!-- Badges avec fallback HTML -->
+            <div class="badges" style="margin-top: 30px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                <img src="https://img.shields.io/badge/platform-iOS%20%7C%20macOS-lightgrey.svg" 
+                     alt="Platform: iOS | macOS" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                <span class="badge-fallback" style="display: none; background: rgba(255,255,255,0.3); padding: 5px 12px; border-radius: 5px; font-size: 0.9em;">Platform: iOS | macOS</span>
+                
+                <img src="https://img.shields.io/badge/Swift-5.9-orange.svg" 
+                     alt="Swift 5.9" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                <span class="badge-fallback" style="display: none; background: rgba(255,127,0,0.8); padding: 5px 12px; border-radius: 5px; font-size: 0.9em;">Swift 5.9</span>
+                
+                <img src="https://img.shields.io/badge/SwiftUI-5.0-blue.svg" 
+                     alt="SwiftUI 5.0" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                <span class="badge-fallback" style="display: none; background: rgba(0,122,255,0.8); padding: 5px 12px; border-radius: 5px; font-size: 0.9em;">SwiftUI 5.0</span>
+                
+                <img src="https://img.shields.io/badge/License-MIT-green.svg" 
+                     alt="License: MIT" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                <span class="badge-fallback" style="display: none; background: rgba(40,167,69,0.8); padding: 5px 12px; border-radius: 5px; font-size: 0.9em;">License: MIT</span>
+            </div>
         </div>
     </header>
     
