@@ -12,25 +12,24 @@ import os.log
 private let logger = Logger(subsystem: "com.thephoenixagency.silentkey", category: "Lifecycle")
 
 /**
- SilentKeyApp (v0.7.3-staging)
+ SilentKeyApp (v0.8.0-staging)
  Core entry point.
  Features:
- - Explicit window centering on launch.
- - Standardized aspect ratio preservation.
+ - Integrated Keychain & Biometrics.
+ - Explicit window centering.
  - Single-instance enforcement.
  */
 @main
 struct SilentKeyApp: App {
     @StateObject private var appState = AppState()
-    @StateObject private var authManager = AuthenticationManager()
+    @StateObject private var authenticationManager = AuthenticationManager()
     
     var body: some Scene {
         #if os(macOS)
         Window("SILENT KEY", id: "silentkey_main") {
             ContentView()
                 .environmentObject(appState)
-                .environmentObject(authManager)
-                // Center the window at launch using a responsive base size
+                .environmentObject(authenticationManager)
                 .frame(minWidth: 1000, maxWidth: .infinity, minHeight: 700, maxHeight: .infinity)
                 .onAppear {
                     setupAppEnvironment()
@@ -45,7 +44,7 @@ struct SilentKeyApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(appState)
-                .environmentObject(authManager)
+                .environmentObject(authenticationManager)
                 .preferredColorScheme(.dark)
         }
         #endif
@@ -56,8 +55,10 @@ struct SilentKeyApp: App {
         #if os(macOS)
         NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
-        // Auto-login for staging validation
-        authManager.quickAuthenticate()
+        
+        // MARK: - STAGING BYPASS
+        // Uncomment below to skip login during fast UI testing.
+        // authenticationManager.quickAuthenticate()
         #endif
     }
     
@@ -71,7 +72,6 @@ struct SilentKeyApp: App {
                     let newOriginY = screenRect.origin.y + (screenRect.height - window.frame.height) / 2
                     window.setFrameOrigin(NSPoint(x: newOriginX, y: newOriginY))
                     window.makeKeyAndOrderFront(nil)
-                    logger.info("Window centered on screen: \(screen.localizedName)")
                 }
             }
         }
