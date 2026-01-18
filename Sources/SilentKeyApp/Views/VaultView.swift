@@ -108,11 +108,11 @@ struct VaultView: View {
     
     private func loadVaultData() {
         logger.info("Loading vault data.")
-        // Simulated loading from VaultManager
+        // Simulated loading from VaultManager with valid data
         items = [
-            SecretItem(title: "AWS Root Key", type: .apiKey),
-            SecretItem(title: "GitHub Personal Token", type: .token),
-            SecretItem(title: "Main Bank Account", type: .credential)
+            SecretItem(title: "AWS Root Key", type: .apiKey, encryptedValue: Data()),
+            SecretItem(title: "GitHub Personal Token", type: .token, encryptedValue: Data()),
+            SecretItem(title: "Main Bank Account", type: .credential, encryptedValue: Data())
         ]
     }
 }

@@ -12,12 +12,12 @@ import os.log
 private let logger = Logger(subsystem: "com.thephoenixagency.silentkey", category: "MainView")
 
 /**
- MainView (v0.7.3-staging)
+ MainView (v0.7.4-staging)
  Hub central de SILENT KEY.
- Améliorations WCAG :
- - Sidebar élargie (280pt) pour éviter les coupures de texte ("Déconnexion").
- - Désactivation stricte de la césure (hyphenation) pour la lisibilité.
- - Support natif du redimensionnement dynamique des caractères.
+ Changements :
+ - Suppression du nom d'app dans la sidebar.
+ - Ajout du logo et nom d'app agrandi dans l'en-tête de la vue de détail (Standard Pro).
+ - Optimisation WCAG et espacements.
  */
 struct MainView: View {
     @EnvironmentObject var appState: AppState
@@ -25,7 +25,6 @@ struct MainView: View {
     @StateObject private var localization = LocalizationManager.shared
     @State private var selectedTab: TabItem = .vault
     
-    // WCAG: Define a minimum sidebar width that supports long French words
     private let sidebarMinWidth: CGFloat = 260
     
     var body: some View {
@@ -35,15 +34,18 @@ struct MainView: View {
                 .background(VisualEffectView(material: .sidebar, blendingMode: .behindWindow))
         } detail: {
             VStack(spacing: 0) {
-                ZStack {
+                ZStack(alignment: .top) {
                     backgroundGradient
+                    
+                    // Header Pro: Logo + App Name (Grand format)
+                    appHeaderOverlay
                     
                     Group {
                         switch selectedTab {
-                        case .vault: VaultView()
-                        case .projects: ProjectsView()
-                        case .trash: TrashView()
-                        case .settings: SettingsView()
+                        case .vault: VaultView().padding(.top, 100)
+                        case .projects: ProjectsView().padding(.top, 100)
+                        case .trash: TrashView().padding(.top, 100)
+                        case .settings: SettingsView().padding(.top, 100)
                         }
                     }
                     .transition(.opacity)
@@ -54,9 +56,29 @@ struct MainView: View {
             }
         }
         .preferredColorScheme(.dark)
-        .onAppear {
-            logger.info("MainView active (v0.7.3). WCAG layouts optimized.")
+    }
+    
+    // MARK: - App Header (The "Pro" Look)
+    
+    private var appHeaderOverlay: some View {
+        HStack(spacing: 20) {
+            LogoView(size: 44) // Rappel du logo en haut à droite (standard pro)
+            
+            Text(localization.localized(.appName).uppercased())
+                .font(.system(size: 28, weight: .black, design: .rounded))
+                .tracking(8)
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [.white, .white.opacity(0.7)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+            
+            Spacer()
         }
+        .padding(.horizontal, 40)
+        .padding(.top, 40)
     }
     
     private var backgroundGradient: some View {
@@ -72,14 +94,13 @@ struct MainView: View {
     
     private var sidebarContent: some View {
         VStack(spacing: 0) {
+            // Sidebar unifiée sans le titre répétitif
             List(selection: $selectedTab) {
                 Section {
                     navigationLabel(localization.localized(.vault), icon: "shield.fill")
                         .tag(TabItem.vault)
                 } header: {
-                    Text(localization.localized(.appName).uppercased())
-                        .font(.system(size: 10, weight: .black))
-                        .foregroundStyle(.blue)
+                    Text("VAULT").font(.system(size: 10, weight: .black)).opacity(0.5)
                 }
                 
                 Section {
@@ -89,14 +110,13 @@ struct MainView: View {
                     navigationLabel(localization.localized(.trash), icon: "trash.fill")
                         .tag(TabItem.trash)
                 } header: {
-                    Text("ORGANIZATION").font(.system(size: 10, weight: .black))
+                    Text("ORGANIZATION").font(.system(size: 10, weight: .black)).opacity(0.5)
                 }
             }
             .listStyle(.sidebar)
             
             Divider().opacity(0.1)
             
-            // BOTTOM BAR: Optimized for long labels (WCAG)
             VStack(alignment: .leading, spacing: 16) {
                 Button(action: { selectedTab = .settings }) {
                     navigationLabel(localization.localized(.settings), icon: "gearshape.fill")
@@ -115,14 +135,6 @@ struct MainView: View {
         }
     }
     
-    // MARK: - WCAG Helpers
-    
-    /**
-     A helper to create labels that respect WCAG rules:
-     - No truncation.
-     - No hyphens.
-     - Scalable text.
-     */
     private func navigationLabel(_ text: String, icon: String) -> some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
@@ -133,20 +145,17 @@ struct MainView: View {
                 .font(.system(size: 14, weight: .bold))
                 .fixedSize(horizontal: false, vertical: true)
                 .lineLimit(nil)
-                .allowsTightening(false) // WCAG: ensure characters aren't squeezed
+                .allowsTightening(false)
         }
     }
 }
 
-// MARK: - Subviews stubs optimized for WCAG
+// MARK: - Subviews optimized for WCAG
 
 struct ProjectsView: View {
     @StateObject private var localization = LocalizationManager.shared
     var body: some View {
         VStack {
-            Text(localization.localized(.projects).uppercased())
-                .font(.system(size: 32, weight: .black, design: .rounded)).tracking(4)
-                .fixedSize(horizontal: false, vertical: true)
             Spacer()
             Image(systemName: "folder.badge.plus").font(.system(size: 80)).foregroundStyle(.white.opacity(0.1))
             Text("NO PROJECTS DETECTED").font(.system(size: 14, weight: .black)).opacity(0.3)
@@ -159,8 +168,6 @@ struct ProjectsView: View {
 struct TrashView: View {
     var body: some View {
         VStack {
-            Text("TRASH").font(.system(size: 32, weight: .black, design: .rounded)).tracking(4)
-                .fixedSize(horizontal: false, vertical: true)
             Spacer()
             Image(systemName: "trash.slash.fill").font(.system(size: 80)).foregroundStyle(.white.opacity(0.1))
             Text("TRASH IS EMPTY").font(.system(size: 14, weight: .black)).opacity(0.3)
@@ -175,16 +182,6 @@ struct SettingsView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
-                Text(localization.localized(.settings).uppercased())
-                    .font(.system(size: 32, weight: .black, design: .rounded))
-                    .foregroundStyle(.white)
-                    .tracking(4)
-                    .fixedSize(horizontal: false, vertical: true)
-                Spacer()
-            }
-            .padding(30)
-            
             List {
                 Section("LOCALIZATION") {
                     Picker("Language", selection: $localization.currentLanguage) {
@@ -199,18 +196,22 @@ struct SettingsView: View {
                     Toggle("Auto-lock on idle", isOn: .constant(true))
                     Toggle("Biometric unlock (Touch ID)", isOn: .constant(true))
                 }
-                
-                Section("ABOUT") {
-                    HStack {
-                        Text("App Version")
-                        Spacer()
-                        Text("0.7.3-staging")
-                            .foregroundStyle(.white.opacity(0.5))
-                    }
-                }
             }
             .listStyle(.inset)
             .scrollContentBackground(.hidden)
         }
     }
+}
+
+struct VisualEffectView: NSViewRepresentable {
+    let material: NSVisualEffectView.Material
+    let blendingMode: NSVisualEffectView.BlendingMode
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = material
+        view.blendingMode = blendingMode
+        view.state = .active
+        return view
+    }
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
 }
