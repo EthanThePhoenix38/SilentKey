@@ -61,13 +61,12 @@ jobs:
         
     - name: Check for known CVEs
       run: |
-        # Vérifier les vulnérabilités connues
+        # Check for known vulnerabilities
         swift package show-dependencies --format json > deps.json
-        echo "Dépendances vérifiées pour les CVE"
-        
+            echo "Dependencies checked for CVEs"        
     - name: Static code analysis
       run: |
-        # Analyse statique du code
+        # Static code analysis du code
         swiftlint lint --strict || echo "SwiftLint warnings found"
         
   build:
@@ -123,7 +122,7 @@ jobs:
         BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
         KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
       run: |
-        # Créer variables
+        # Create variables
         CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
         PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
         KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
