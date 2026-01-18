@@ -15,7 +15,6 @@ private let logger = Logger(subsystem: "com.thephoenixagency.silentkey", categor
 /**
  AuthenticationView (v2.3.0)
  Features a NATIVE NSTextField wrapper for macOS to ensure 100% reliable focus capture.
- This bypasses SwiftUI @FocusState issues on certain macOS versions/configurations.
  */
 struct AuthenticationView: View {
     @EnvironmentObject var authManager: AuthenticationManager
@@ -24,14 +23,11 @@ struct AuthenticationView: View {
     @State private var masterPassword = ""
     @State private var isPasswordVisible = false
     @State private var isAuthenticating = false
-    
-    // We still use FocusState as a secondary trigger
     @FocusState private var isPasswordFocused: Bool
     @State private var appearanceAnimate = false
     
     var body: some View {
         ZStack {
-            // THEME: No-black policy
             LinearGradient(
                 colors: [Color(red: 0.1, green: 0.2, blue: 0.5), Color(red: 0.05, green: 0.1, blue: 0.3)],
                 startPoint: .topLeading,
@@ -44,7 +40,6 @@ struct AuthenticationView: View {
                 languageSelectorBar
                 Spacer()
                 
-                // MAIN PANEL
                 VStack(spacing: 45) {
                     brandingHeader
                     
@@ -71,14 +66,11 @@ struct AuthenticationView: View {
         }
         .onAppear { 
             appearanceAnimate = true
-            logger.info("AuthenticationView appeared. Triggering native focus.")
             #if os(macOS)
             NSApp.activate(ignoringOtherApps: true)
             #endif
         }
     }
-    
-    // MARK: - Components
     
     private var languageSelectorBar: some View {
         HStack {
@@ -119,11 +111,9 @@ struct AuthenticationView: View {
                     .font(.system(size: 20))
                     .foregroundStyle(.white)
                 
-                // NATIVE FOCUS WRAPPER (macOS Only)
                 #if os(macOS)
                 NativeTextField(text: $masterPassword, isSecure: !isPasswordVisible, placeholder: "••••••••", onCommit: performUnlock)
                     .frame(height: 30)
-                    .accessibilityIdentifier("master_password_native")
                 #else
                 Group {
                     if isPasswordVisible {
@@ -179,7 +169,6 @@ struct AuthenticationView: View {
         VStack(spacing: 30) {
             HStack(spacing: 50) {
                 metadataItem(label: "SECURITY", value: "AES-256-GCM")
-                metadataItem(label: "VERIFICATION", value: "NATIVE-FOCUS")
             }
             .opacity(0.8)
             Link(destination: URL(string: "http://thephoenixagency.github.io")!) {
@@ -189,11 +178,8 @@ struct AuthenticationView: View {
         }
     }
     
-    // MARK: - Actions
-    
     private func performUnlock() {
         guard !masterPassword.isEmpty && !isAuthenticating else { return }
-        logger.info("Starting authentication flow.")
         isAuthenticating = true
         Task {
             await authManager.authenticate(with: masterPassword)
@@ -227,66 +213,29 @@ struct AuthenticationView: View {
     }
 }
 
-// MARK: - Native macOS Wrapper
-
 #if os(macOS)
-/**
- NativeTextField provides a high-reliability NSTextField/NSSecureTextField wrapper.
- It forces 'becomeFirstResponder' on appear to ensure keyboard focus is captured.
- */
 struct NativeTextField: NSViewRepresentable {
     @Binding var text: String
     var isSecure: Bool
     var placeholder: String
     var onCommit: () -> Void
-    
     func makeNSView(context: Context) -> NSTextField {
         let textField = isSecure ? NSSecureTextField() : NSTextField()
         textField.placeholderString = placeholder
-        textField.isBordered = false
-        textField.drawsBackground = false
-        textField.focusRingType = .none
-        textField.textColor = .white
-        textField.font = .systemFont(ofSize: 20, weight: .semibold)
+        textField.isBordered = false; textField.drawsBackground = false; textField.focusRingType = .none
+        textField.textColor = .white; textField.font = .systemFont(ofSize: 20, weight: .semibold)
         textField.delegate = context.coordinator
-        
-        // Immediate focus request
-        DispatchQueue.main.async {
-            if textField.window != nil {
-                textField.window?.makeKeyAndOrderFront(nil)
-                textField.becomeFirstResponder()
-                logger.info("Native NSTextField becomeFirstResponder called.")
-            }
-        }
-        
+        DispatchQueue.main.async { textField.window?.makeKeyAndOrderFront(nil); textField.becomeFirstResponder() }
         return textField
     }
-    
-    func updateNSView(_ nsView: NSTextField, context: Context) {
-        if nsView.stringValue != text {
-            nsView.stringValue = text
-        }
-    }
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
+    func updateNSView(_ nsView: NSTextField, context: Context) { if nsView.stringValue != text { nsView.stringValue = text } }
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
     class Coordinator: NSObject, NSTextFieldDelegate {
         var parent: NativeTextField
         init(_ parent: NativeTextField) { self.parent = parent }
-        
-        func controlTextDidChange(_ obj: Notification) {
-            if let textField = obj.object as? NSTextField {
-                parent.text = textField.stringValue
-            }
-        }
-        
+        func controlTextDidChange(_ obj: Notification) { if let textField = obj.object as? NSTextField { parent.text = textField.stringValue } }
         func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
-            if commandSelector == #selector(NSResponder.insertNewline(_:)) {
-                parent.onCommit()
-                return true
-            }
+            if commandSelector == #selector(NSResponder.insertNewline(_:)) { parent.onCommit(); return true }
             return false
         }
     }

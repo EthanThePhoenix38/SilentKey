@@ -12,7 +12,7 @@ import os.log
 private let logger = Logger(subsystem: "com.thephoenixagency.silentkey", category: "VaultView")
 
 /**
- VaultView (v2.2.0)
+ VaultView (v2.4.0)
  Primary dashboard for secret management.
  Supports search, filtering, and CRUD operations.
  */
@@ -109,7 +109,11 @@ struct VaultView: View {
     private func loadVaultData() {
         logger.info("Loading vault data.")
         // Simulated loading from VaultManager
-        // items = VaultManager.shared.getItems()
+        items = [
+            SecretItem(title: "AWS Root Key", type: .apiKey),
+            SecretItem(title: "GitHub Personal Token", type: .token),
+            SecretItem(title: "Main Bank Account", type: .credential)
+        ]
     }
 }
 
@@ -118,7 +122,7 @@ struct VaultItemRow: View {
     
     var body: some View {
         HStack(spacing: 15) {
-            Image(systemName: "lock.square.fill")
+            Image(systemName: item.type == .apiKey ? "key.fill" : "lock.square.fill")
                 .font(.system(size: 30))
                 .foregroundStyle(.blue)
             
@@ -126,9 +130,9 @@ struct VaultItemRow: View {
                 Text(item.title)
                     .font(.system(size: 16, weight: .bold))
                     .foregroundStyle(.white)
-                Text(item.username)
-                    .font(.system(size: 13))
-                    .foregroundStyle(.white.opacity(0.6))
+                Text(item.type.rawValue.uppercased())
+                    .font(.system(size: 10, weight: .black))
+                    .foregroundStyle(.white.opacity(0.4))
             }
             
             Spacer()
@@ -142,11 +146,4 @@ struct VaultItemRow: View {
         .cornerRadius(12)
         .padding(.vertical, 4)
     }
-}
-
-// MOCK SECRET ITEM FOR UI TESTING
-struct SecretItem: Identifiable {
-    let id = UUID()
-    let title: String
-    let username: String
 }

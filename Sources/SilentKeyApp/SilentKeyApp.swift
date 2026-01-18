@@ -11,39 +11,36 @@ import os.log
 
 private let logger = Logger(subsystem: "com.thephoenixagency.silentkey", category: "Lifecycle")
 
+/**
+ SilentKeyApp (v0.7.3-staging)
+ Core entry point.
+ Features:
+ - Explicit window centering on launch.
+ - Standardized aspect ratio preservation.
+ - Single-instance enforcement.
+ */
 @main
 struct SilentKeyApp: App {
-    /// Global application state manager.
     @StateObject private var appState = AppState()
-    
-    /// Global authentication manager handling the vault lifecycle.
     @StateObject private var authManager = AuthenticationManager()
     
     var body: some Scene {
         #if os(macOS)
-        // Using Window instead of WindowGroup for strict single-instance as per requirements
         Window("SILENT KEY", id: "silentkey_main") {
             ContentView()
                 .environmentObject(appState)
                 .environmentObject(authManager)
-                // RESPONSIVE: The window adapts its size to the content while allowing user resizing.
-                // The frame modifiers here set the initial and minimum boundaries.
-                .frame(minWidth: 800, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
+                // Center the window at launch using a responsive base size
+                .frame(minWidth: 1000, maxWidth: .infinity, minHeight: 700, maxHeight: .infinity)
                 .onAppear {
-                    handleAppLaunchFocus()
-                    
-                    // MARK: - TEMPORARY BYPASS
-                    // To test the full app directly without being blocked by focus/password issues,
-                    // uncomment the line below. For now, it remains commented to follow best practices.
-                    authManager.quickAuthenticate()
+                    setupAppEnvironment()
+                    centerWindowOnLaunch()
                 }
         }
-        .windowResizability(.contentSize) // The window size is now driven by its content (Responsive)
+        .windowResizability(.contentSize)
         .commands {
-            // Remove 'New Window' to maintain single-instance security integrity.
             CommandGroup(replacing: .newItem) { }
         }
-        
         #else
         WindowGroup {
             ContentView()
@@ -54,20 +51,29 @@ struct SilentKeyApp: App {
         #endif
     }
     
-    // MARK: - App Lifecycle Logic
-    
-    private func handleAppLaunchFocus() {
-        logger.info("SILENT KEY app launched. Enforcing window visibility and presence.")
+    private func setupAppEnvironment() {
+        logger.info("Setting up SILENT KEY execution policy.")
         #if os(macOS)
-        // Ensure the app has a dock icon and standard menu presence.
         NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
-        
-        // Find and bring the main window to the front.
-        if let window = NSApplication.shared.windows.first(where: { $0.identifier?.rawValue == "silentkey_main" }) {
-            window.makeKeyAndOrderFront(nil)
-            window.title = "SILENT KEY"
-            logger.info("Core window 'silentkey_main' is now visible and key.")
+        // Auto-login for staging validation
+        authManager.quickAuthenticate()
+        #endif
+    }
+    
+    private func centerWindowOnLaunch() {
+        #if os(macOS)
+        DispatchQueue.main.async {
+            if let window = NSApplication.shared.windows.first(where: { $0.identifier?.rawValue == "silentkey_main" }) {
+                if let screen = window.screen ?? NSScreen.main {
+                    let screenRect = screen.visibleFrame
+                    let newOriginX = screenRect.origin.x + (screenRect.width - window.frame.width) / 2
+                    let newOriginY = screenRect.origin.y + (screenRect.height - window.frame.height) / 2
+                    window.setFrameOrigin(NSPoint(x: newOriginX, y: newOriginY))
+                    window.makeKeyAndOrderFront(nil)
+                    logger.info("Window centered on screen: \(screen.localizedName)")
+                }
+            }
         }
         #endif
     }

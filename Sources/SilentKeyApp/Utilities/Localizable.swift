@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import os.log
 
 enum AppLanguage: String, CaseIterable, Identifiable {
     case english = "en"
