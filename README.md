@@ -2,18 +2,67 @@
 
 <div align="center">
 
-**Local-first developer secrets vault with double-layer encryption**
+**Local-first developer secrets vault with double-layer encryption**  
+**Coffre-fort local pour secrets de développeurs avec double encryption**
 
 [![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20macOS-lightgrey.svg)](https://github.com/ThePhoenixAgency/SilentKey)
 [![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)](https://swift.org)
 [![SwiftUI](https://img.shields.io/badge/SwiftUI-5.0-blue.svg)](https://developer.apple.com/xcode/swiftui/)
-
-
-</div>
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ---
 
-## English
+## 🌍 Choose Your Language / Choisissez votre langue
+
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <a href="README.en.md">
+        <img src="https://raw.githubusercontent.com/lipis/flag-icons/main/flags/4x3/gb.svg" width="60" height="45" alt="English">
+        <br><br>
+        <strong>🇬🇧 English Documentation</strong>
+      </a>
+      <br><br>
+      <p>Complete documentation in English</p>
+    </td>
+    <td align="center" width="50%">
+      <a href="README.fr.md">
+        <img src="https://raw.githubusercontent.com/lipis/flag-icons/main/flags/4x3/fr.svg" width="60" height="45" alt="Français">
+        <br><br>
+        <strong>🇫🇷 Documentation Française</strong>
+      </a>
+      <br><br>
+      <p>Documentation complète en français</p>
+    </td>
+  </tr>
+</table>
+
+---
+
+## Quick Links / Liens Rapides
+
+- 📚 [English Documentation](README.en.md) | [Documentation Française](README.fr.md)
+- 🏗️ [Architecture Guide](docs/en/ARCHITECTURE.md) | [Guide d'Architecture](docs/fr/ARCHITECTURE.md)
+- 🗺️ [Development Roadmap](docs/en/ROADMAP.md) | [Feuille de Route](docs/fr/ROADMAP.md)
+- 🔌 [Templates & Plugins](docs/en/TEMPLATES.md)
+- 🤝 [Contributing Guidelines](CONTRIBUTING.md)
+- 🔒 [Security Policy](SECURITY.md)
+- 🐛 [Report Issue](https://github.com/ThePhoenixAgency/SilentKey/issues)
+- 💬 [Discussions](https://github.com/ThePhoenixAgency/SilentKey/discussions)
+
+---
+
+<div align="center">
+
+**Developed by [PhoenixProject](https://github.com/ThePhoenixAgency)**
+
+[Website](https://ThePhoenixAgency.github.io) • [GitHub](https://github.com/ThePhoenixAgency)
+
+© 2025 PhoenixProject • MIT License
+
+</div>
+
+</div>
 
 ### Overview
 
