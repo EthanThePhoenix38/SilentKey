@@ -192,7 +192,13 @@ public enum PluginAction {
 }
 
 public struct PluginResult {
-    let success: Bool
-    let message: String?
-    let data: [String: Any]?
+    public let success: Bool
+    public let message: String?
+    public let data: [String: Any]?
+    
+    public init(success: Bool, message: String?, data: [String: Any]? = nil) {
+        self.success = success
+        self.message = message
+        self.data = data
+    }
 }
