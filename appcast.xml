@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    TODO: Appcast.xml file for automatic Sparkle updates    
-    This file will be automatically generated during release publication.    PAS DE PLACEHOLDERS - Voir BACKLOG.md pour suivi implementation.
+    TODO: Appcast.xml file for automatic Sparkle updates
+    This file will be automatically generated during release publication.
+    NO PLACEHOLDERS - See BACKLOG.md for implementation tracking.
+    
+    NOT ACTIVE functionality until fully implemented.
 -->
+<!-- Intentionally disabled file - TODO in BACKLOG.md -->
