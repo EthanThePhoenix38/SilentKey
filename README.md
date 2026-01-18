@@ -42,9 +42,9 @@
 ## Quick Links / Liens Rapides
 
 - 📚 [English Documentation](README.en.md) | [Documentation Française](README.fr.md)
-- 🏗️ [Architecture Guide](docs/en/ARCHITECTURE.md) | [Guide d'Architecture](docs/fr/ARCHITECTURE.md)
+- 🏗️ [Architecture Guide](docs/ARCHITECTURE.md)
 - 🗺️ [Development Roadmap](docs/en/ROADMAP.md) | [Feuille de Route](docs/fr/ROADMAP.md)
-- 🔌 [Templates & Plugins](docs/en/TEMPLATES.md)
+- 🔌 [Templates & Plugins](docs/TEMPLATES.md)
 - 🤝 [Contributing Guidelines](CONTRIBUTING.md)
 - 🔒 [Security Policy](SECURITY.md)
 - 🐛 [Report Issue](https://github.com/ThePhoenixAgency/SilentKey/issues)

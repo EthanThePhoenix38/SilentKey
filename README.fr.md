@@ -96,9 +96,9 @@ SilentKey/
 
 ## Documentation
 
-- [Guide d'Architecture](docs/fr/ARCHITECTURE.md)
+- [Guide d'Architecture](docs/ARCHITECTURE.md)
 - [Feuille de Route](docs/fr/ROADMAP.md)
-- [Templates & Plugins](docs/fr/TEMPLATES.md)
+- [Templates & Plugins](docs/TEMPLATES.md)
 - [Guide de Contribution](CONTRIBUTING.md)
 - [Politique de Sécurité](SECURITY.md)
 
