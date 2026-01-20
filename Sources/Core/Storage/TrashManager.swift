@@ -28,7 +28,10 @@ actor TrashManager {
             await scheduleAutomaticCleanup()
         }
         
-        logger.log("TrashManager initialisé", level: .info, category: .storage)
+        // Log retardé car l'accès à self dans init est restreint en Swift 6
+        Task {
+            Logger.shared.log("TrashManager initialisé", level: .info, category: .storage)
+        }
     }
     
     // MARK: - Trash Operations
@@ -99,7 +102,6 @@ actor TrashManager {
         let trashIDs = try await fileStorage.listTrashIDs()
         var trashItems: [TrashItem] = []
         
-        let fileManager = FileManager.default
         let trashDir = try getTrashDirectory()
         
         for id in trashIDs {
@@ -220,7 +222,7 @@ actor TrashManager {
 
 /// Représente un item dans la poubelle
 public struct TrashItem: Identifiable {
-    let id: UUID
+    public let id: UUID
     let deletedDate: Date
     let expirationDate: Date
     let daysRemaining: Int
@@ -241,7 +243,7 @@ public enum TrashError: LocalizedError {
     case itemAlreadyExpired
     case restoreConflict
     
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .itemNotInTrash:
             return "L'item n'est pas dans la poubelle."

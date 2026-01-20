@@ -62,6 +62,7 @@ public enum SecretCategory: String, Codable, CaseIterable {
     case certificate = "Certificate"
     case license = "License"
     case note = "Secure Note"
+    case project = "Project"
     case custom = "Custom"
     
     var icon: String {
@@ -75,6 +76,7 @@ public enum SecretCategory: String, Codable, CaseIterable {
         case .certificate: return "doc.badge.gearshape.fill"
         case .license: return "doc.text.fill"
         case .note: return "note.text"
+        case .project: return "folder.fill"
         case .custom: return "puzzlepiece.extension.fill"
         }
     }

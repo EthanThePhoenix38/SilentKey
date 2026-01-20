@@ -207,6 +207,9 @@ public class TemplateManager {
     private func registerBuiltInTemplates() {
         register(BankAccountSecret.self)
         register(APIKeySecret.self)
+        register(PasswordSecret.self)
+        register(CertificateSecret.self)
+        register(ProjectItem.self)
     }
     
     /// Register a new template

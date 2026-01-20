@@ -233,17 +233,22 @@ actor FileStorage {
     func createBackup() async throws -> Data {
         logger.log("Création backup", level: .info, category: .storage)
         
-        var backup: [String: Data] = [:]
         let ids = try await listAllIDs()
+        var items: [String: Data] = [:]
         
         for id in ids {
             let data = try await load(forID: id)
-            backup[id.uuidString] = data
+            items[id.uuidString] = data
         }
         
-        let backupData = try JSONEncoder().encode(backup)
-        logger.log("Backup créé: \(ids.count) items", level: .info, category: .storage)
+        guard let metadata = try await loadMetadata() else {
+            throw StorageError.readFailed(NSError(domain: "FileStorage", code: 404, userInfo: [NSLocalizedDescriptionKey: "Metadata not found"]))
+        }
         
+        let backup = VaultBackup(metadata: metadata, items: items)
+        let backupData = try JSONEncoder().encode(backup)
+        
+        logger.log("Backup créé: \(ids.count) items", level: .info, category: .storage)
         return backupData
     }
     
@@ -251,19 +256,61 @@ actor FileStorage {
     func restoreBackup(_ backupData: Data) async throws {
         logger.log("Restauration backup", level: .warning, category: .storage)
         
-        let backup = try JSONDecoder().decode([String: Data].self, from: backupData)
+        let backup = try JSONDecoder().decode(VaultBackup.self, from: backupData)
         
-        for (uuidString, data) in backup {
+        // Restaurer métadonnées
+        try await saveMetadata(backup.metadata)
+        
+        // Restaurer items
+        for (uuidString, data) in backup.items {
             if let id = UUID(uuidString: uuidString) {
                 try await save(data, forID: id)
             }
         }
         
-        logger.log("Backup restauré: \(backup.count) items", level: .info, category: .storage)
+        logger.log("Backup restauré: \(backup.items.count) items", level: .info, category: .storage)
+    }
+    
+    // MARK: - Metadata
+    
+    /// Sauvegarde les métadonnées du coffre
+    func saveMetadata(_ metadata: VaultMetadata) async throws {
+        let fileURL = vaultDirectory.appendingPathComponent("metadata.json")
+        let data = try JSONEncoder().encode(metadata)
+        try data.write(to: fileURL, options: [.atomic, .completeFileProtection])
+    }
+    
+    /// Charge les métadonnées du coffre
+    func loadMetadata() async throws -> VaultMetadata? {
+        let fileURL = vaultDirectory.appendingPathComponent("metadata.json")
+        guard fileManager.fileExists(atPath: fileURL.path) else {
+            return nil
+        }
+        let data = try Data(contentsOf: fileURL)
+        return try JSONDecoder().decode(VaultMetadata.self, from: data)
     }
 }
 
 // MARK: - Supporting Types
+
+public struct VaultMetadata: Codable {
+    public let salt: Data
+    public let createdAt: Date
+    public var lastModified: Date
+    public var version: String
+    
+    public init(salt: Data, version: String = "1.3.1") {
+        self.salt = salt
+        self.createdAt = Date()
+        self.lastModified = Date()
+        self.version = version
+    }
+}
+
+public struct VaultBackup: Codable {
+    public let metadata: VaultMetadata
+    public let items: [String: Data]
+}
 
 public struct TrashMetadata: Codable {
     let originalID: UUID
@@ -281,7 +328,7 @@ public enum StorageError: LocalizedError {
     case listFailed(Error)
     case directoryCreationFailed
     
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .writeFailed(let error):
             return "Échec écriture: \(error.localizedDescription)"

@@ -347,6 +347,8 @@ struct FeatureRow: View {
 
 // MARK: - Prévisualisation
 
+/*
 #Preview {
     StoreView()
 }
+*/
