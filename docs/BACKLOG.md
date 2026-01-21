@@ -140,15 +140,15 @@ docs/
 - [ ] Mapper la structure reelle vs structure documentee
 
 ### 2. Fichiers Manquants Core (BLOQUANT)
-- [ ] `Sources/Core/Crypto/EncryptionManager.swift` (mentionne mais absent)
-- [ ] `Sources/Core/Models/PasswordModels.swift`
-- [ ] `Sources/Core/Models/CertificateModels.swift`
-- [ ] `Sources/Core/Models/ProjectModels.swift` (NOUVEAU)
-- [ ] `Sources/Core/Storage/VaultManager.swift`
-- [ ] `Sources/Core/Storage/FileStorage.swift`
-- [ ] `Sources/Core/Storage/TrashManager.swift` (NOUVEAU)
-- [ ] `Sources/Core/Security/` (dossier complet)
-- [ ] `Sources/Core/Notifications/PushNotificationManager.swift` (NOUVEAU)
+- [x] `Sources/Core/Crypto/EncryptionManager.swift`
+- [x] `Sources/Core/Models/PasswordModels.swift`
+- [x] `Sources/Core/Models/CertificateModels.swift`
+- [x] `Sources/Core/Models/ProjectModels.swift`
+- [x] `Sources/Core/Storage/VaultManager.swift`
+- [x] `Sources/Core/Storage/FileStorage.swift`
+- [x] `Sources/Core/Storage/TrashManager.swift`
+- [x] `Sources/Core/Security/` (dossier KeychainManager cree par le user)
+- [x] `Sources/Core/Notifications/PushNotificationManager.swift`
 
 ### 3. Tests Manquants
 - [ ] `Tests/SilentKeyTests/ProtocolTests.swift`
@@ -164,7 +164,7 @@ docs/
 ## Sprint 1 - Fonctionnalites Principales
 
 ### A. Gestion Projets Developpeur (NOUVEAU CRITIQUE)
-- [ ] **Modele ProjectItem.swift**
+- [x] **Modele ProjectItem.swift**
   - Nom projet, description, tags
   - Relations multiples vers API keys, secrets, comptes
   - Support relations N-N (un secret peut appartenir a plusieurs projets)
@@ -187,7 +187,7 @@ docs/
   - Suggestions noms alternatifs
 
 ### B. Systeme Poubelle (NOUVEAU CRITIQUE)
-- [ ] **TrashManager.swift**
+- [x] **TrashManager.swift**
   - Soft delete de tous types d'items
   - Retention automatique 30 jours
   - Nettoyage automatique apres expiration
@@ -205,7 +205,7 @@ docs/
   - Alertes avant suppression definitive
 
 ### C. Alerting Push Natif (NOUVEAU)
-- [ ] **Integration UserNotifications framework**
+- [x] **Integration UserNotifications framework**
   - Import UserNotifications natif macOS
   - Demande permissions utilisateur
   - Configuration categories notifications

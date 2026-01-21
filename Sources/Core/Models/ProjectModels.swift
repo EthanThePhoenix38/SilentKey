@@ -8,30 +8,34 @@ import SwiftUI
 
 /// Modèle de projet développeur avec relations multiples
 struct ProjectItem: SecretItemProtocol, Identifiable, Codable, Hashable {
-    let id: UUID
-    var title: String
-    var version: Int
-    var createdDate: Date
-    var lastModified: Date
+    public let id: UUID
+    public var title: String
+    public var version: Int
+    public var createdAt: Date
+    public var modifiedAt: Date
+    public var isFavorite: Bool
     
     // Propriétés spécifiques au projet
-    var description: String
-    var tags: [String]
-    var status: ProjectStatus
-    var icon: ProjectIcon
-    var color: String // Hex color
+    public var description: String
+    public var tags: Set<String>
+    public var status: ProjectStatus
+    public var icon: ProjectIcon
+    public var color: String // Hex color
     
     // Relations multiples (N-N)
-    var relatedAPIKeys: [UUID]
-    var relatedSecrets: [UUID]
-    var relatedBankingAccounts: [UUID]
-    var relatedCertificates: [UUID]
-    var relatedPasswords: [UUID]
+    public var relatedAPIKeys: [UUID]
+    public var relatedSecrets: [UUID]
+    public var relatedBankingAccounts: [UUID]
+    public var relatedCertificates: [UUID]
+    public var relatedPasswords: [UUID]
     
     // Métadonnées
-    var notes: String
-    var url: String? // URL du dépôt Git ou site web
-    var environment: ProjectEnvironment
+    public var notes: String?
+    public var url: String? // URL du dépôt Git ou site web
+    public var environment: ProjectEnvironment
+    
+    public var category: SecretCategory { .project }
+    public var iconName: String { icon.systemImage }
     
     // MARK: - Initialisation
     
@@ -39,19 +43,20 @@ struct ProjectItem: SecretItemProtocol, Identifiable, Codable, Hashable {
         id: UUID = UUID(),
         title: String,
         description: String = "",
-        tags: [String] = [],
+        tags: Set<String> = [],
         status: ProjectStatus = .active,
         icon: ProjectIcon = .folder,
         color: String = "#007AFF",
-        notes: String = "",
+        notes: String? = nil,
         url: String? = nil,
-        environment: ProjectEnvironment = .development
+        environment: ProjectEnvironment = .development,
+        isFavorite: Bool = false
     ) {
         self.id = id
         self.title = title
         self.version = 1
-        self.createdDate = Date()
-        self.lastModified = Date()
+        self.createdAt = Date()
+        self.modifiedAt = Date()
         self.description = description
         self.tags = tags
         self.status = status
@@ -65,6 +70,19 @@ struct ProjectItem: SecretItemProtocol, Identifiable, Codable, Hashable {
         self.notes = notes
         self.url = url
         self.environment = environment
+        self.isFavorite = isFavorite
+    }
+    
+    public func encryptedData() throws -> Data {
+        return try JSONEncoder().encode(self)
+    }
+    
+    public func validate() throws {
+        if title.isEmpty { throw ProjectError.invalidTitle }
+    }
+    
+    public func searchableText() -> String {
+        return "\(title) \(description) \(tags.joined(separator: " ")) \(url ?? "")"
     }
     
     // MARK: - Relations Management
@@ -73,42 +91,42 @@ struct ProjectItem: SecretItemProtocol, Identifiable, Codable, Hashable {
     mutating func addAPIKey(_ keyID: UUID) {
         if !relatedAPIKeys.contains(keyID) {
             relatedAPIKeys.append(keyID)
-            lastModified = Date()
+            modifiedAt = Date()
         }
     }
     
     /// Supprime une relation vers un API Key
     mutating func removeAPIKey(_ keyID: UUID) {
         relatedAPIKeys.removeAll { $0 == keyID }
-        lastModified = Date()
+        modifiedAt = Date()
     }
     
     /// Ajoute une relation vers un Secret
     mutating func addSecret(_ secretID: UUID) {
         if !relatedSecrets.contains(secretID) {
             relatedSecrets.append(secretID)
-            lastModified = Date()
+            modifiedAt = Date()
         }
     }
     
     /// Supprime une relation vers un Secret
     mutating func removeSecret(_ secretID: UUID) {
         relatedSecrets.removeAll { $0 == secretID }
-        lastModified = Date()
+        modifiedAt = Date()
     }
     
     /// Ajoute une relation vers un compte bancaire
     mutating func addBankingAccount(_ accountID: UUID) {
         if !relatedBankingAccounts.contains(accountID) {
             relatedBankingAccounts.append(accountID)
-            lastModified = Date()
+            modifiedAt = Date()
         }
     }
     
     /// Supprime une relation vers un compte bancaire
     mutating func removeBankingAccount(_ accountID: UUID) {
         relatedBankingAccounts.removeAll { $0 == accountID }
-        lastModified = Date()
+        modifiedAt = Date()
     }
     
     /// Compte total des relations
@@ -393,9 +411,9 @@ enum ProjectSortOption: String, CaseIterable {
         case .title:
             result = lhs.title.localizedCaseInsensitiveCompare(rhs.title) == .orderedAscending
         case .createdDate:
-            result = lhs.createdDate < rhs.createdDate
+            result = lhs.createdAt < rhs.createdAt
         case .lastModified:
-            result = lhs.lastModified < rhs.lastModified
+            result = lhs.modifiedAt < rhs.modifiedAt
         case .status:
             result = lhs.status.rawValue < rhs.status.rawValue
         case .relationsCount:
@@ -403,5 +421,35 @@ enum ProjectSortOption: String, CaseIterable {
         }
         
         return ascending ? result : !result
+    }
+}
+
+public enum ProjectError: Error {
+    case invalidTitle
+}
+
+extension ProjectItem: SecretTemplate {
+    public static var templateName: String { "Developer Project" }
+    public static var templateDescription: String { "Manage developer projects and their related secrets" }
+    public static var requiredFields: [FieldDefinition] {
+        [
+            FieldDefinition(name: "title", displayName: "Project Name", type: .text, isSecure: false, placeholder: "My Awesome App", validationPattern: nil)
+        ]
+    }
+    public static var optionalFields: [FieldDefinition] {
+        [
+            FieldDefinition(name: "description", displayName: "Description", type: .multiline, isSecure: false, placeholder: "A brief description of the project", validationPattern: nil),
+            FieldDefinition(name: "url", displayName: "Repository URL", type: .url, isSecure: false, placeholder: "https://github.com/...", validationPattern: nil)
+        ]
+    }
+    public static func create(from fields: [String: Any]) throws -> ProjectItem {
+        guard let title = fields["title"] as? String else {
+            throw ProjectError.invalidTitle
+        }
+        return ProjectItem(
+            title: title,
+            description: (fields["description"] as? String) ?? "",
+            url: fields["url"] as? String
+        )
     }
 }

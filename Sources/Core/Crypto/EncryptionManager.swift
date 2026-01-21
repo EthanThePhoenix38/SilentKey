@@ -14,23 +14,17 @@ public actor EncryptionManager {
     
     private init() {}
     
-    /// Dérive une clé depuis un mot de passe
-    /// - Parameter password: Mot de passe maître
-    /// - Returns: Clé symétrique dérivée, ou nil en cas d'échec
-    public func deriveKey(from password: String) async throws -> SymmetricKey? {
+    /// Dérive une clé depuis un mot de passe et un sel
+    /// - Parameters:
+    ///   - password: Mot de passe maître
+    ///   - salt: Sel cryptographique
+    /// - Returns: Clé symétrique dérivée
+    public func deriveKey(from password: String, salt: Data) async throws -> SymmetricKey {
         guard !password.isEmpty else {
-            return nil
+            throw KeyDerivationService.KeyDerivationError.invalidPassword
         }
         
-        do {
-            // Générer ou récupérer le sel (pour démo, on génère un nouveau sel)
-            // En production, le sel devrait être stocké de manière persistante
-            let salt = try KeyDerivationService.generateSalt()
-            let masterKey = try KeyDerivationService.deriveMasterKey(from: password, salt: salt)
-            return masterKey
-        } catch {
-            return nil
-        }
+        return try KeyDerivationService.deriveMasterKey(from: password, salt: salt)
     }
     
     /// Chiffre un item codable
@@ -55,4 +49,24 @@ public actor EncryptionManager {
         let decoder = JSONDecoder()
         return try decoder.decode(type, from: plainData)
     }
+    
+    /// Chiffre des données avec un nouveau sel et retourne un conteneur sécurisé
+    public func encryptWithNewSalt(_ data: Data, password: String) async throws -> EncryptedContainer {
+        let salt = try KeyDerivationService.generateSalt()
+        let key = try await deriveKey(from: password, salt: salt)
+        let ciphertext = try AESEncryptionService.encrypt(data, with: key)
+        return EncryptedContainer(salt: salt, ciphertext: ciphertext)
+    }
+    
+    /// Déchiffre un conteneur sécurisé avec un mot de passe
+    public func decryptContainer(_ container: EncryptedContainer, password: String) async throws -> Data {
+        let key = try await deriveKey(from: password, salt: container.salt)
+        return try AESEncryptionService.decrypt(container.ciphertext, with: key)
+    }
+}
+
+/// Conteneur pour données chiffrées avec leur sel
+public struct EncryptedContainer: Codable {
+    public let salt: Data
+    public let ciphertext: Data
 }
